@@ -246,6 +246,7 @@ def initialize(capacity, intensity, rates_init):
             # Since counting backward, we insert each rate at the beginning of the list
             rates_each.insert(0, final_rate)
         rates.append(rates_each)
+        rates = [[round(rate, 0) for rate in rates[i]] for i in range(7)]
 
 
     # Discount ratio
@@ -259,6 +260,7 @@ def initialize(capacity, intensity, rates_init):
                 ratio = 0.5
             ratios_each.append(ratio)
         ratios.append(ratios_each)
+        ratios = [[round(ratio, 4) for ratio in ratios[i]] for i in range(7)]
     
     # Return protection levels, representative rates, and ratios for implementation in the next step.
     return(ptLevels_ptd, ptLevels, rates, ratios)

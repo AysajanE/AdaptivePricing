@@ -137,4 +137,7 @@ def linparams(capacity, intensity, slope, rates_init):
     slopes_update = np.array(slopes_update).reshape(n_class, 7, los)
     intercepts_update = np.array(intercepts_update).reshape(n_class, 7, los)
 
+    slopes_update = np.round(slopes_update, 2)
+    intercepts_update = np.round(intercepts_update, 0)
+
     return (slopes_update, intercepts_update)
