@@ -263,6 +263,11 @@ def initialize(capacity, intensity, rates_init):
         ratios.append(ratios_each)
 
     ratios = [[round(ratio, 4) for ratio in ratios[i]] for i in range(7)]
+
+    ptLevels_ptd = [np.array(x) for x in ptLevels_ptd]
+    ptLevels = [np.array(x) for x in ptLevels]
+    rates = [np.array(x) for x in rates]
+    ratios = [np.array(x) for x in ratios]
     
     # Return protection levels, representative rates, and ratios for implementation in the next step.
     return(ptLevels_ptd, ptLevels, rates, ratios)
