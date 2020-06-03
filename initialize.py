@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
+
 # Initialize adaptive pricing algorithm by generating initial nested protection levels, 
 # each bucket representative revenues, and discount ratios for a given initial rate, 
 # capacity, and demand intensity
+
+import itertools
+from operator import itemgetter
+import numpy as np
+from cvxopt import matrix, solvers
+
+# Parameter values
+n_class = 2
+los = 3
+combs = n_class * 7 * los
+
 def initialize(capacity, intensity, rates_init): 
-    import itertools
-    from operator import itemgetter
-    import numpy as np
-    from cvxopt import matrix, solvers
-
-    # Parameter values
-    n_class = 2
-    los = 3
-    combs = n_class * 7 * los
-
+    
     # Calculate averate rates for each arrival day of week and los combination
     rates_arrival_los = [[rates_init[i, j],
                           rates_init[i, j] + rates_init[i, (j+1)%7],
@@ -137,8 +140,11 @@ def initialize(capacity, intensity, rates_init):
             for item in index_ls:
                 item_index = index_ls.index(item)
                 if duals[item] >= lower: 
-                    buckets[n_buckets-1].append(item)
+                    buckets[n_buckets-1].append((item, duals[item]))
                     item_delete_index.append(item_index)
+            # If there is multiple rdas in a bucket, we order them by dual values
+            buckets[n_buckets-1] = sorted(buckets[n_buckets-1], key=itemgetter(1), reverse=True)
+            buckets[n_buckets-1] = [x[0] for x in buckets[n_buckets-1]]
             # Update index list for the next iteration by removing elements that have been
             # already clustered
             index_ls = [item for item in index_ls if index_ls.index(item) not in item_delete_index]
@@ -270,6 +276,6 @@ def initialize(capacity, intensity, rates_init):
     ratios = [np.array(x) for x in ratios]
     
     # Return protection levels, representative rates, and ratios for implementation in the next step.
-    return(ptLevels_ptd, ptLevels, rates, ratios)
+    return(buckets_all, ptLevels_ptd, ptLevels, rates, ratios)
 
 

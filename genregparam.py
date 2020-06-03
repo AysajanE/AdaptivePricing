@@ -9,11 +9,12 @@ from scipy.stats import norm
 from scipy.stats import poisson
 from sklearn.linear_model import LinearRegression
 
+# Consider two rate classes for simplicity
+n_class = 2
+# Consider Length-of-Stay (los) of upto three days
+los = 3
+
 def linparams(capacity, intensity, slope, rates_init):
-    # Consider two rate classes for simplicity
-    n_class = 2
-    # Consider Length-of-Stay (los) of upto three days
-    los = 3
 
     # Take the slope of -0.1 for rate class 1, then the mean true demand point for any arrival date/lengthof-
     # stay combination is passed through by the line defined by this slope; 30 points on the price
