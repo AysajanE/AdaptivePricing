@@ -26,15 +26,16 @@ sat_stay_index = [(0, 6, 0), (0, 6, 1), (0, 6, 2), (0, 5, 1), (0, 5, 2), (0, 4, 
             (1, 6, 0), (1, 6, 1), (1, 6, 2), (1, 5, 1), (1, 5, 2), (1, 4, 2)]
 
 # Create one complete index list
-# Create one complete index list
 stay_index = [sun_stay_index, mon_stay_index, tue_stay_index, wed_stay_index,
         thr_stay_index, fri_stay_index, sat_stay_index]
 
 
-sun_stay_index_wk1 = [(0, 0, 0), (0, 0, 1), (0, 0, 2),  
-            (1, 0, 0), (1, 0, 1), (1, 0, 2) ]
+sun_stay_index_wk1 = [(0, 0, 0), (0, 0, 1), (0, 0, 2), (1, 0, 0), 
+        (1, 0, 1), (1, 0, 2)]
 
-mon_stay_index_wk1 = [(0, 1, 0), (0, 1, 1), (0, 1, 2), (0, 0, 1), (0, 0, 2),  
-            (1, 1, 0), (1, 1, 1), (1, 1, 2), (1, 0, 1), (1, 0, 2)]
-stay_index_wk1 =[sun_stay_index_wk1, mon_stay_index_wk1, tue_stay_index, 
+mon_stay_index_wk1 = [(0, 1, 0), (0, 1, 1), (0, 1, 2), (0, 0, 1), (0, 0, 2), 
+        (1, 1, 0), (1, 1, 1), (1, 1, 2), (1, 0, 1), (1, 0, 2)]
+
+# Create one complete index list
+stay_index_wk1 =[sun_stay_index_wk1, mon_stay_index_wk1, tue_stay_index,
         wed_stay_index, thr_stay_index, fri_stay_index, sat_stay_index] 
