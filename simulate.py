@@ -929,6 +929,17 @@ for _ in range(num_simulations):
 sim_weeklyRev = np.array(sim_weeklyRev).reshape(num_simulations, weeks, 3)
 avgweeklyRev = np.mean(sim_weeklyRev, axis=0)
 
+plt.subplot()
+plt.plot(avgweeklyRev[:, 0], label="DP")
+plt.plot(avgweeklyRev[:, 1], label="AP")
+plt.plot(avgweeklyRev[:, 2], label="FCFS")
+plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.)
+plt.show()
+
+# Add week info to the output, which comes handy for visualization in RStudio.
+weekdata = np.arange(1, weeks+1)
+revOutput = np.column_stack((weekdata, avgweeklyRev))
+
 # Export the results to a csv file
-np.savetxt(csvfilename, avgweeklyRev, fmt='%i, %i, %i', delimiter=',', 
-        header="DP, AP, FCFS", comments="")
+np.savetxt(csvfilename, revOutput, fmt='%i, %i, %i, %i', delimiter=',', 
+        header="Week, DP, AP, FCFS", comments="")
