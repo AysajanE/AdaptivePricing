@@ -4,31 +4,103 @@ library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(scales)
-library(ggplot2)
 library(reshape2)
 library(gridExtra)
 library(readr)
+library(ggpubr)
+#install.packages('ggpubr')
 
-my_data <- read.csv('result_HLL.csv', stringsAsFactors = FALSE)
+# Import simulated revenue data for all 8 different scenarios
+data_HHH <- read.csv('result_HHH.csv', stringsAsFactors = FALSE)
+# Add a new column, specifying the scenario in consideration
+df_HHH <- cbind(scenario = 'HHH', data_HHH)
 
-wkRev <- my_data %>% 
-  pivot_longer(-Week, names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+data_HHL <- read.csv('result_HHL.csv', stringsAsFactors = FALSE)
+df_HHL <- cbind(scenario = 'HHL', data_HHL)
 
-wk_rev_plot <- ggplot(data = wkRev,
-                      aes(x = Week, y = avg.weekly.revenue, 
-                          group = pricing.scheme, 
-                          shape = pricing.scheme))
-rev_plot <- wk_rev_plot + geom_line(aes(linetype = pricing.scheme,
-                                        color = pricing.scheme))+
-  geom_point(aes(color = pricing.scheme)) +
-  scale_x_continuous(name = 'Week') +
-  scale_y_continuous(name = 'Avg. Revenue',
-                     labels = dollar) +
-  theme(legend.position = c(0.7, 0.5),
-        legend.direction = 'horizontal',
-        legend.title = element_blank(),
-        plot.title = element_text(size = 12, face = 'bold.italic', hjust = 0.5),
+data_HLH <- read.csv('result_HLH.csv', stringsAsFactors = FALSE)
+df_HLH <- cbind(scenario = 'HLH', data_HLH)
+
+data_HLL <- read.csv('result_HLL.csv', stringsAsFactors = FALSE)
+df_HLL <- cbind(scenario = 'HLL', data_HLL)
+
+data_LHH <- read.csv('result_LHH.csv', stringsAsFactors = FALSE)
+df_LHH <- cbind(scenario = 'LHH', data_LHH)
+
+data_LHL <- read.csv('result_LHL.csv', stringsAsFactors = FALSE)
+df_LHL <- cbind(scenario = 'LHL', data_LHL)
+
+data_LLH <- read.csv('result_LLH.csv', stringsAsFactors = FALSE)
+df_LLH <- cbind(scenario = 'LLH', data_LLH)
+
+data_LLL <- read.csv('result_LLL.csv', stringsAsFactors = FALSE)
+df_LLL <- cbind(scenario = 'LLL', data_LLL)
+
+totalweeks = max(data_HHH['Week'])
+
+# Tide the data so that it will be convient for plotting purpose
+wkRev_HHH <- df_HHH %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_HHL <- df_HHL %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_HLH <- df_HLH %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_HLL <- df_HLL %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+
+wkRev_LHH <- df_LHH %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_LHL <- df_LHL %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_LLH <- df_LLH %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_LLL <- df_LLL %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+
+# Consider High (Low) demand intensity scenarios separately
+wkRev_HD <- rbind(wkRev_HHH, wkRev_HHL, wkRev_HLH, wkRev_HLL)
+wkRev_LD <- rbind(wkRev_LHH, wkRev_LHL, wkRev_LLH, wkRev_LLL)
+# Change labels for different scenarios, instead of original simplified values in the data
+levels(wkRev_HD$scenario) <- c("High Slopes, High Revenue Gap",
+                               "High Slopes, Low Revenue Gap",
+                               "Low Slopes, High Revenue Gap",
+                               "Low Slopes, Low Revenue Gap")
+levels(wkRev_LD$scenario) <- c("High Slopes, High Revenue Gap",
+                               "High Slopes, Low Revenue Gap",
+                               "Low Slopes, High Revenue Gap",
+                               "Low Slopes, Low Revenue Gap")
+
+# Use ggplot facet_wrap function to plot multiple graphs in one place
+# High Demand Intensity
+plt_HD <- ggplot(data = wkRev_HD, 
+              aes(x = Week, y = avg.weekly.revenue, group = pricing.scheme)) +
+  geom_line(aes(linetype = pricing.scheme, color = pricing.scheme)) +
+  geom_point(aes(color = pricing.scheme, shape = pricing.scheme), size=2) +
+  scale_x_continuous(name = 'Week', breaks = seq(0, totalweeks, by = 5)) +
+  scale_y_continuous(name = 'Avg. Weekly Revenue', 
+                     breaks = extended_breaks(n = 6), labels = dollar) +
+  theme(plot.title = element_text(size = 12, face = 'bold.italic', hjust = 0.5),
         axis.title.x = element_text(color = 'black', size = 11, face = 'bold'),
         axis.title.y = element_text(color = 'black', size = 11, face = 'bold'),
-        panel.border = element_rect(colour = "black", fill=NA))
-rev_plot
+        panel.border = element_rect(colour = "black", fill = NA)) +
+  facet_wrap( ~ scenario, ncol=2)
+
+# Low Demand Intensity
+plt_LD <- ggplot(data = wkRev_LD, 
+                 aes(x = Week, y = avg.weekly.revenue, group = pricing.scheme)) +
+  geom_line(aes(linetype = pricing.scheme, color = pricing.scheme)) +
+  geom_point(aes(color = pricing.scheme, shape = pricing.scheme), size=2) +
+  scale_x_continuous(name = 'Week', breaks = seq(0, totalweeks, by = 5)) +
+  scale_y_continuous(name = 'Avg. Weekly Revenue', 
+                     breaks = extended_breaks(n = 6), labels = dollar) +
+  theme(plot.title = element_text(size = 12, face = 'bold.italic', hjust = 0.5),
+        axis.title.x = element_text(color = 'black', size = 11, face = 'bold'),
+        axis.title.y = element_text(color = 'black', size = 11, face = 'bold'),
+        panel.border = element_rect(colour = "black", fill = NA)) +
+  facet_wrap( ~ scenario, ncol=2)
+
+# Show the graphs
+plt_HD
+plt_LD
+
+
