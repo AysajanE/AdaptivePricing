@@ -4,11 +4,10 @@ import sys
 from sys import stdout
 import argparse
 
-parser = argparse.ArgumentParser(description="Run all 8 scenarios sequantially.")
+parser = argparse.ArgumentParser(description="Run all 8 scenarios sequentially.")
 parser.add_argument('simulations', type=int, default=100, help="Number of simulations to run")
 args = parser.parse_args()
 n_sims = args.simulations
-print(n_sims)
 
 print("Starting simulation {} times".format(n_sims))
 

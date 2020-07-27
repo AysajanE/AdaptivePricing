@@ -39,23 +39,23 @@ df_LLL <- cbind(scenario = 'LLL', data_LLL)
 totalweeks = max(data_HHH['Week'])
 
 # Tide the data so that it will be convient for plotting purpose
-wkRev_HHH <- df_HHH %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_HHL <- df_HHL %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_HLH <- df_HLH %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_HLL <- df_HLL %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_HHH <- df_HHH[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_HHL <- df_HHL[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_HLH <- df_HLH[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_HLL <- df_HLL[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
 
-wkRev_LHH <- df_LHH %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_LHL <- df_LHL %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_LLH <- df_LLH %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
-wkRev_LLL <- df_LLL %>% 
-  pivot_longer(-c(scenario, Week), names_to = 'pricing.scheme', values_to = 'avg.weekly.revenue')
+wkRev_LHH <- df_LHH[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_LHL <- df_LHL[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_LLH <- df_LLH[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
+wkRev_LLL <- df_LLL[, -c(3:5)] %>% 
+  pivot_longer(-c(scenario, Week), names_to = 'pricing.comp', values_to = 'avg.wkly.rev.gap')
 
 # Consider High (Low) demand intensity scenarios separately
 wkRev_HD <- rbind(wkRev_HHH, wkRev_HHL, wkRev_HLH, wkRev_HLL)
@@ -73,12 +73,12 @@ levels(wkRev_LD$scenario) <- c("High Slopes, High Revenue Gap",
 # Use ggplot facet_wrap function to plot multiple graphs in one place
 # High Demand Intensity
 plt_HD <- ggplot(data = wkRev_HD, 
-              aes(x = Week, y = avg.weekly.revenue, group = pricing.scheme)) +
-  geom_line(aes(linetype = pricing.scheme, color = pricing.scheme)) +
-  geom_point(aes(color = pricing.scheme, shape = pricing.scheme), size=2) +
+              aes(x = Week, y = avg.wkly.rev.gap, group = pricing.comp)) +
+  geom_line(aes(linetype = pricing.comp, color = pricing.comp)) +
+  geom_point(aes(color = pricing.comp, shape = pricing.comp), size=2) +
   scale_x_continuous(name = 'Week', breaks = seq(0, totalweeks, by = 5)) +
-  scale_y_continuous(name = 'Avg. Weekly Revenue', 
-                     breaks = extended_breaks(n = 6), labels = dollar) +
+  scale_y_continuous(name = 'Weekly Revenue Gap (%)', 
+                     breaks = extended_breaks(n = 10), labels = percent) +
   theme(plot.title = element_text(size = 12, face = 'bold.italic', hjust = 0.5),
         axis.title.x = element_text(color = 'black', size = 11, face = 'bold'),
         axis.title.y = element_text(color = 'black', size = 11, face = 'bold'),
@@ -87,12 +87,12 @@ plt_HD <- ggplot(data = wkRev_HD,
 
 # Low Demand Intensity
 plt_LD <- ggplot(data = wkRev_LD, 
-                 aes(x = Week, y = avg.weekly.revenue, group = pricing.scheme)) +
-  geom_line(aes(linetype = pricing.scheme, color = pricing.scheme)) +
-  geom_point(aes(color = pricing.scheme, shape = pricing.scheme), size=2) +
+                 aes(x = Week, y = avg.wkly.rev.gap, group = pricing.comp)) +
+  geom_line(aes(linetype = pricing.comp, color = pricing.comp)) +
+  geom_point(aes(color = pricing.comp, shape = pricing.comp), size=2) +
   scale_x_continuous(name = 'Week', breaks = seq(0, totalweeks, by = 5)) +
-  scale_y_continuous(name = 'Avg. Weekly Revenue', 
-                     breaks = extended_breaks(n = 6), labels = dollar) +
+  scale_y_continuous(name = 'Weekly Revenue Gap (%)', 
+                     breaks = extended_breaks(n = 10), labels = percent) +
   theme(plot.title = element_text(size = 12, face = 'bold.italic', hjust = 0.5),
         axis.title.x = element_text(color = 'black', size = 11, face = 'bold'),
         axis.title.y = element_text(color = 'black', size = 11, face = 'bold'),

@@ -66,65 +66,66 @@ capacity = args.capacity
 
 if (args.intensity=='high') & (args.slopes=='high') & (args.rates=='high'):
     intensity = 1.5
-    slopes_init = np.array([-0.1, -0.15])
-    rates_init = rates_init = np.array([[160, 160, 160, 160, 160, 128, 128],
+    slopes0 = np.array([-0.1, -0.15])
+    rates0 = np.array([[160, 160, 160, 160, 160, 128, 128],
                        [90, 90, 90, 90, 90, 72, 72]])
     csvfilename = 'result_HHH.csv'
 elif (args.intensity=='high') & (args.slopes=='high') & (args.rates=='low'):
     intensity = 1.5
-    slopes_init = np.array([-0.1, -0.15])
-    rates_init = np.array([[135, 135, 135, 135, 135, 108, 108],
+    slopes0 = np.array([-0.1, -0.15])
+    rates0 = np.array([[135, 135, 135, 135, 135, 108, 108],
                        [115, 115, 115, 115, 115, 92, 92]])
     csvfilename = 'result_HHL.csv'
 elif (args.intensity=='high') & (args.slopes=='low') & (args.rates=='high'):
     intensity = 1.5
-    slopes_init = np.array([-0.05, -0.10])
-    rates_init = rates_init = np.array([[160, 160, 160, 160, 160, 128, 128],
+    slopes0 = np.array([-0.05, -0.10])
+    rates0 = rates0 = np.array([[160, 160, 160, 160, 160, 128, 128],
                        [90, 90, 90, 90, 90, 72, 72]])
     csvfilename = 'result_HLH.csv'
 elif (args.intensity=='high') & (args.slopes=='low') & (args.rates=='low'):
     intensity = 1.5
-    slopes_init = np.array([-0.05, -0.10])
-    rates_init = np.array([[135, 135, 135, 135, 135, 108, 108],
+    slopes0 = np.array([-0.05, -0.10])
+    rates0 = np.array([[135, 135, 135, 135, 135, 108, 108],
                        [115, 115, 115, 115, 115, 92, 92]])
     csvfilename = 'result_HLL.csv'
 elif (args.intensity=='low') & (args.slopes=='high') & (args.rates=='high'):
     intensity = 0.9
-    slopes_init = np.array([-0.1, -0.15])
-    rates_init = rates_init = np.array([[160, 160, 160, 160, 160, 128, 128],
+    slopes0 = np.array([-0.1, -0.15])
+    rates0 = rates0 = np.array([[160, 160, 160, 160, 160, 128, 128],
                        [90, 90, 90, 90, 90, 72, 72]])
     csvfilename = 'result_LHH.csv'
 elif (args.intensity=='low') & (args.slopes=='high') & (args.rates=='low'):
     intensity = 0.9
-    slopes_init = np.array([-0.1, -0.15])
-    rates_init = np.array([[135, 135, 135, 135, 135, 108, 108],
+    slopes0 = np.array([-0.1, -0.15])
+    rates0 = np.array([[135, 135, 135, 135, 135, 108, 108],
                        [115, 115, 115, 115, 115, 92, 92]])
     csvfilename = 'result_LHL.csv'
 elif (args.intensity=='low') & (args.slopes=='low') & (args.rates=='high'):
     intensity = 0.9
-    slopes_init = np.array([-0.05, -0.10])
-    rates_init = rates_init = np.array([[160, 160, 160, 160, 160, 128, 128],
+    slopes0 = np.array([-0.05, -0.10])
+    rates0 = rates0 = np.array([[160, 160, 160, 160, 160, 128, 128],
                        [90, 90, 90, 90, 90, 72, 72]])
     csvfilename = 'result_LLH.csv'
 else:
     intensity = 0.9
-    slopes_init = np.array([-0.05, -0.10])
-    rates_init = np.array([[135, 135, 135, 135, 135, 108, 108],
+    slopes0 = np.array([-0.05, -0.10])
+    rates0 = np.array([[135, 135, 135, 135, 135, 108, 108],
                        [115, 115, 115, 115, 115, 92, 92]])
     csvfilename = 'result_LLL.csv'
     
-# For adaptive pricing algorithm, we have two parameters for step size: param1 and param2
-param1, param2 = 100, 5
+# For adaptive pricing algorithm, we have two parameters for step size: 
+# param1 and param2
+param1, param2 = 100, 70 
 
 # Total combinations of arrivals
 combs = n_class * 7 * los
 
-# Partitioned protection levels, nested protection levels, representative revenue, and
-# discount ration for each virtual bucket, each stay night
-buckets, thetas_prt, thetas, rates_vir, ratios = initialize(capacity, intensity, rates_init)
-slopes, intercepts = linparams(capacity, intensity, slopes_init, rates_init)
+# Partitioned protection levels, nested protection levels, representative 
+# revenue, and discount ration for each virtual bucket, each stay night
+buckets, thetas_prt, thetas, rates_vir, ratios = initialize(capacity, intensity, rates0)
+slopes, intercepts = linparams(capacity, intensity, slopes0, rates0)
 
-thetas_init = [np.minimum(thetas[i], capacity)[:-1] for i in range(7)]
+thetas0 = [np.minimum(thetas[i], capacity)[:-1] for i in range(7)]
 
 # Define a function to calculate rates for multiple stay nights
 def moving_sum(a, n):
@@ -237,25 +238,30 @@ rates_DP = np.round(rates_DP, 0)
 
 ######################## Start Simulation ########################
 ################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
 
 sim_weeklyRev = []
 num_simulations = args.simulations
 
 for _ in range(num_simulations):
-    ######################## Week 1 ########################
     weeklyRev = []
-    ######################## Step1 : Based on the rates, generate demand ########################
-    # Initialize rates for adaptive pricing algorithm and first-come, first-serve approach
-    # In current week, store rates for current week and next week
-    thetas_wk1 = thetas_init
-    thetas_wk2 = thetas_init
+    ######################## Week 1 ########################
 
-    wk1_rates_AP = rates_init
-    wk2_rates_AP = rates_init
+    ########## Step1 : Based on the rates, generate demand ########
+    # Initialize rates for adaptive pricing algorithm and first-come, 
+    # first-serve approach.
+    # In current week, store rates for current week and next week
+
+    # VERY IMPORTANT !!!!!
+    # HERE, LIST COPY HAS TO BE DONE IN THE WAY BELOW. IF "thetas0.copy()" USED,
+    # PYTHON BEHAVE VERY STRANGELY AND THE RESULTS ARE WRONG.
+    thetas_now = [thetas0[i].copy() for i in range(7)]
+    thetas_next = [thetas0[i].copy() for i in range(7)] 
+
+    wk1_rates_AP = rates0.copy()
+    wk2_rates_AP = rates0.copy()
+    # The reason we consider two weeks' rate is that for example, for Saturday 
+    # arrival, 2-night stay booking requests, the rate will be Saturday stay 
+    # night rate + Sunday (which is second week) stay night rate.
     rates_for_two_weeks_AP = np.concatenate((wk1_rates_AP, wk2_rates_AP)).reshape(2, n_class, 7)
     # Derive rates for rate class of r, arrival day of d and length of stay of d
     rates_AP = [[moving_sum(rates_for_two_weeks_AP[:, i].reshape(2*7), j)[:7]
@@ -265,8 +271,8 @@ for _ in range(num_simulations):
     rates_AP = np.swapaxes(rates_AP, 1, 2)
 
     # In current week, store rates for current week and next week
-    wk1_rates_FCFS = rates_init
-    wk2_rates_FCFS = rates_init
+    wk1_rates_FCFS = rates0.copy()
+    wk2_rates_FCFS = rates0.copy()
     rates_for_two_weeks_FCFS = np.concatenate((wk1_rates_FCFS, wk2_rates_FCFS)).reshape(2, n_class, 7)
     # Derive rates for rate class of r, arrival day of d and length of stay of d
     rates_FCFS = [[moving_sum(rates_for_two_weeks_FCFS[:, i].reshape(2*7), j)[:7]
@@ -278,112 +284,145 @@ for _ in range(num_simulations):
     # Order of rates as dynamic pricing rates, adaptive pricing rates, and FCFS rates
     ratesAll = [rates_DP, rates_AP, rates_FCFS]
 
-    # Generate nonhomogenous Poisson process true bookings (i.e., customer demand) on a weekly basis
-    # the mean of the Poisson process will be equal to the linear demand curve function of the room rates
+    # Generate nonhomogenous Poisson process true bookings (i.e., customer 
+    # demand) on a weekly basis the mean of the Poisson process will be equal 
+    # to the linear demand curve function of the room rates
     mus = [np.maximum(intercepts + slopes * rates, 0) for rates in ratesAll]
 
     demands = [[poisson.rvs(mu, size=1) for mu in np.nditer(mus_each)] for mus_each in mus]
     demands = [np.array(x).reshape(n_class, 7, los) for x in demands]
 
-    demands_old_AP = demands[1]
+    # For FCFS approach, since we need at least two demand date to calculate demand change,
+    # we assume the same demand for old and new for the first week.
+    demands_old_FCFS = demands[2].copy()
+    demands_new_FCFS = demands[2].copy()
 
-    demands_old_FCFS = demands[2]
-    demands_new_FCFS = demands[2]
-
-    ######################## Step 2: Calculate weekly room revenue ########################
+    ############ Step 2: Calculate weekly room revenue ###################
     # Consider first week stay nights, our week starts on Sunday, not Monday
     nightlyRev = []
     wk1SellInfo = []
-    wk1RoomSold_AP = []
+    ls_capacity = np.repeat(capacity, 7*3*2).reshape(7*2, 3)
+    sold_AP_dict = {}
+
+    thetas_tmp1 = [thetas_now[i].copy() for i in range(7)]
     for i in range(7):
-        # Sunday of first week, there is no previous week Saturday or Friday arrival that span Sunday
-        if i == 0:
-            buckets_night = [[rad for rad in rads if rad[1] == 0] for rads in buckets[i]]
-        # Monday of first week, there is no previous week Saturday arrival that span Monday
-        elif i == 1:
-            buckets_night = [[rad for rad in rads if rad[1] != 6] for rads in buckets[i]]
-        else:
-            buckets_night = buckets[i]
+        buckets_night = buckets[i]
         # Three different algorithms, three different scenarios to consider
-        capacity_left = [capacity] * 3
+        # VERY IMPORTANT: Have to use copy() function, otherwise the equality 
+        # will be identity equality where when ls_capacity changes, 
+        # capacity_left will also change.
+        capacity_left = ls_capacity[i].copy()
         # Info about the booking class type, rooms sold and revenues (single night revenue)
         soldAll = []
         roomSold_AP = []
-        # Reverse the buckets for each night under the assumption that low ranked booking
-        # classes arrive first
+        # Reverse the buckets for each night under the assumption that low 
+        # ranked booking classes arrive first
         pl_idx = 0
         for rads in reversed(buckets_night):
             sold_bucket = []
             sold_bucket_AP = 0
-            for rad in rads:
-                # For stay night revenue calculation, we only use one-night stay revenue, not
-                # multiple stay night total revenue
-                rad_single = (rad[0], i, 0)
+            for rad in reversed(rads):
+                if rad[1] != i:
+                    continue
                 # Rooms sold equals smaller of demand and capacity left
                 # Dynamic pricing
                 sold_DP = min(demands[0][rad], capacity_left[0])
-                # Adaptive pricing, the selling amount is constrained by the protection levels for higher classes
+
+                # Adaptive pricing, the selling amount is constrained by the 
+                # protection levels for higher classes
                 try:
-                    BL_AP = max(capacity_left[1]-list(reversed(thetas_wk1[i]))[pl_idx], 0)
+                    BL_AP = max(capacity_left[1]-list(reversed(thetas_tmp1[i]))[pl_idx], 0)
                 except IndexError:
                     BL_AP = capacity_left[1]
 
                 sold_AP = min(demands[1][rad], BL_AP)
+                # Incorporate impact of current acceptance decisions on the following stay nights
+                # for stays of greater than one night
+                span_nights = [item[1] for item in bkClass_bkt if item[0] == rad]
+                for el in span_nights:
+                    idx1 = el[0]
+                    idx2 = el[1]
+                    try:
+                        thetas_tmp1[idx1][idx2:] -= sold_AP
+                    except IndexError:
+                        continue
+                thetas_tmp1 = [sorted(thetas_tmp1[i]) for i in range(7)]
+                thetas_tmp1 = [np.array(thetas_tmp1[i]) for i in range(7)]
                 sold_bucket_AP += sold_AP
+
                 # First-come, first-serve
                 sold_FCFS = min(demands[2][rad], capacity_left[2])
 
                 sold = [sold_DP, sold_AP, sold_FCFS]
+                # If length-of-stay is more than one night, accepting that class
+                # will reduce the remaining capacity on all stay nights it spans.
+                # rad[2] contains LOS.
+                ls_capacity[i+np.arange(rad[2]+1)] = ls_capacity[i+np.arange(rad[2]+1)] - np.array(sold)
 
-                rev = [ratesAll[i][rad_single] * sold[i] for i in range(len(demands))]
+                rev = [ratesAll[i][rad] * sold[i] for i in range(len(demands))]
                 sold_bucket.append((rad, sold, rev))
+                sold_AP_dict[rad] = sold[1]
                 # Update remaining capacity for the next virtual class
-                capacity_left = [capacity_left[i]-sold[i] for i in range(len(sold))]
+                capacity_left = np.array(capacity_left) - np.array(sold)
+
+            # A tuple contains information about booking class, room sold and 
+            # room revenue info for each of the pricing strategy 
             soldAll.append(sold_bucket)
+            # Number of rooms sold under AP, each record is total number of rooms sold for a
+            # virtual booking class created in the initialization process
             roomSold_AP.append(sold_bucket_AP)
             pl_idx += 1
 
         # Remove empty lists
         soldAll = list(filter(None, soldAll))
         soldAll = list(itertools.chain.from_iterable(soldAll))
+
+        # Each record in wk1SellInfo contains sell info for one stay night of the week
+        # for example, booking classes that span Sunday stay night, room sales and revenues
         wk1SellInfo.append(soldAll)
-        wk1RoomSold_AP.append(roomSold_AP)
 
         # Extract revenue information and store it in revenue array
         revenue = [soldAll[i][2] for i in range(len(soldAll))]
         nightlyRev.append(revenue)
-
         # Calculate weekly revenue for each algorithm
     nightlyRev = [np.array(x) for x in nightlyRev]
     revSum = [np.sum(x, axis=0) for x in nightlyRev]
     wk1Rev = np.sum(revSum, axis=0)
     weeklyRev.append(wk1Rev)
 
-    ######################## Step 3: Update protection levels ########################
+    ################## Step 3: Update protection levels ##################
     # Use adaptive pricing algoritm to derive new rates for week 3
-    wk1RoomSold_AP = [list(reversed(wk1RoomSold_AP[i])) for i in range(len(wk1RoomSold_AP))]
-    wk1RoomSold_AP = [np.array(x) for x in wk1RoomSold_AP]
+    # wk1RoomSold_AP is in the order of lower booking classes to higher 
+    # booking classe, thus we need to reverse it back to put highest ranked 
+    # class in the first position
+
+    # Derive number of rooms sold with AP strategy
+    sold_AP_ls = [[[sold_AP_dict[rad] for rad in bucket] for bucket in buckets[i]] for i in range(7)]
+    sold_AP_ls = [[np.array(x) for x in sold_AP_ls[i]] for i in range(7)]
+    sold_AP_sum = [[np.sum(x) for x in sold_AP_ls[i]] for i in range(7)]
+    wk1RoomSold_AP = [np.array(x) for x in sold_AP_sum]
 
     # Update protection levels according to the sales info
     roomSold_cumsum = [np.cumsum(x) for x in wk1RoomSold_AP]
-
     # Compute if the demand for a class exceeds its corresponding protection levels
-    Y = [roomSold_cumsum[i][:-1] >= thetas_wk1[i] for i in range(7)]
+    Y = [roomSold_cumsum[i][:-1] >= thetas_now[i] for i in range(7)]
     # Implement Equation(2) in vanRyzin-McGill 2000
     Z = [np.cumproduct(Y[i]) for i in range(7)]
     # Calculate H(theta, x)
     H = [ratios[i][1:] - Z[i] for i in range(7)]
-    thetas_new = [thetas_wk1[i] - (param1/(param2+1)) * H[i] for i in range(7)]
-    # Truncate at zero and sort it-- nonnegativity of protection levels
-    thetas_new = [np.minimum(np.maximum(thetas_new[i], 0), capacity) for i in range(7)]
+    thetas_new = [thetas_now[i] - (param1/(param2+1)) * H[i] for i in range(7)]
+
+    # Truncate at zero and sort it-- nonnegativity of protection levels 
+    thetas_new = [np.maximum(thetas_new[i], 0) for i in range(7)]
     thetas_new = [sorted(thetas_new[i]) for i in range(7)]
     # Round to integers
     thetas_new = [np.round(thetas_new[i], 0) for i in range(7)]
 
-    ######################## Step 4: Derive protection level adjustments ########################
-    # Create a dummy booking class 1 so that we can find the partitioned protection levels
-    # from nested ones in an easy way
-    thetas_old_full = [np.concatenate(([0], thetas_wk1[i], [capacity])) for i in range(7)]
+    ############## Step 4: Derive protection level adjustments #################
+    # Create a dummy booking class 1 so that we can find the partitioned 
+    # protection levels from nested ones in an easy way. Also, for the lowest 
+    # class, nested protection level equals capacity.
+    thetas_old_full = [np.concatenate(([0], thetas_now[i], [capacity])) for i in range(7)]
     thetas_new_full = [np.concatenate(([0], thetas_new[i], [capacity])) for i in range(7)]
 
     # Calculate partitioned protection level changes for each bucket in each night
@@ -392,14 +431,16 @@ for _ in range(num_simulations):
 
     # Percent change for partitioned protection levels
     # When divide by zero, we assume the change is 1, or 100%.
-    thetas_adj = [np.divide(thetas_new_full_prt[i], thetas_old_full_prt[i],
+    thetas_adj = [np.divide(thetas_new_full_prt[i], thetas_old_full_prt[i], 
                             out=(np.zeros_like(thetas_new_full_prt[i])+2),
                            where=thetas_old_full_prt[i]!=0) - 1 for i in range(7)]
-
-    ######################## Step 4: Derive average rate adjustments ########################
-    # Compute all the changes to booking classes across all stay nights of the week
+    ############### Step 4: Derive average rate adjustments ################
+    # Compute all the changes to booking classes across all stay nights 
+    # of the week
     bkClass_bkt_uniq = {}
     rates_adj = {}
+    # x extracts booking class and y extracts stay night-bucket that 
+    # this particular booking class belong to
     for x, y in bkClass_bkt:
         if x in bkClass_bkt_uniq:
             bkClass_bkt_uniq[x].append((y))
@@ -412,115 +453,130 @@ for _ in range(num_simulations):
     rates_adj_avg = {}
     for k, v in rates_adj.items():
         avg_adj = np.round(np.mean(np.array(v)), 4)
-        avg_adj = max(min(avg_adj, 1), -1)
+        # For practical consideration, we truncate adjustments between -50% and 100%
+        avg_adj = max(min(avg_adj, 1), -0.5)
         rates_adj_avg[k] = [(avg_adj)]
         single_rate = np.round((rates_AP[k] * (1+rates_adj_avg[k][0])) / (k[2] + 1), 0)
         rates_adj_avg[k].append((single_rate))
-    ######################## Step 5: Derive single stay night rate recommendation ########################
-    # Derive single stay night revenue for each rate class for each stay night of the week
-    rate0_new = []
-    rate1_new = []
+    ############# Step 5: Derive single stay night rate recommendation #########    
+    # Derive single stay night revenue for each rate class for each stay night 
+    # of the week
+    rate_new = []
     for bkt in buckets:
         # Flatten the bucket elements for each day of the week
         bkt_ls = list(itertools.chain.from_iterable(bkt))
-        # For each booking class in the falttened list, extract the rates generated by the algorithm
-        myRate0_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls if my_key[0] == 0}
-        myRate1_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls if my_key[0] == 1}
-        # Store it as an array
-        myRate0 = np.array(list(myRate0_dict.values()))
-        myRate1 = np.array(list(myRate1_dict.values()))
-        # Calculate stay night rates for each rate class for each stay night
-        myRate0_avg = np.round(np.mean(myRate0, axis=0)[1], 0)
-        myRate1_avg = np.round(np.mean(myRate1, axis=0)[1], 0)
-        # Create list for new rates to use for next week
-        rate0_new.append(myRate0_avg)
-        rate1_new.append(myRate1_avg)
+        # For each booking class in the falttened list, extract the rates 
+        # generated by the algorithm
+        myRate_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls}
 
+        # Store it as an array
+        myRate = np.array(list(myRate_dict.values()))
+
+        # Calculate stay night rates for each rate class for each stay night
+        myRate_avg = np.round(np.mean(myRate, axis=0)[1], 0)
+
+        # Create list for new rates to use for next week
+        rate_new.append(myRate_avg)
+
+    rate_new = np.array(rate_new)
+
+    rate_diff = (rates0[0] - rates0[1]) / 2
+    # Set rate 1 and rate 2 by adding and subtracting a fixed
+    # amount
+    rate0_new = np.minimum(rate_new + rate_diff, 2*rates0[0])
+    rate1_new = np.minimum(rate_new - rate_diff, 2*rates0[1])
     # New single night rates for next week
     rates_update_AP = np.concatenate((rate0_new, rate1_new)).reshape(n_class, 7)
 
-    ######################## Step 6: Derive updated rate by FCFS ########################
-    # Compute total demand by rate class for each stay night, which is then
+    ############### Step 6: Derive updated rate by FCFS ########################  
+    # Compute total demand by rate class for each stay night, which is then 
     # used to calculate demand change ratio for FCFS strategy
-    demands_old_bynight_FCFS = [sum_of_elements(demands_old_FCFS[tuple(zip(*stay_index_wk1[i]))])
+    demands_old_bynight_FCFS = [sum_of_elements(demands_old_FCFS[tuple(zip(*stay_index_wk1[i]))]) 
                                 for i in range(7)]
-    demands_new_bynight_FCFS = [sum_of_elements(demands_new_FCFS[tuple(zip(*stay_index_wk1[i]))])
+    demands_new_bynight_FCFS = [sum_of_elements(demands_new_FCFS[tuple(zip(*stay_index_wk1[i]))]) 
                                 for i in range(7)]
 
     demands_old_bynight_FCFS = np.array(demands_old_bynight_FCFS)
     demands_new_bynight_FCFS = np.array(demands_new_bynight_FCFS)
-    with np.errstate(divide='ignore'):
+
+    # We calculate total demand for a stay night, not total demand
+    # by rate, to calculate adjustment ratio for the FCFS rates
+    #demands_old_bynight_FCFS = np.sum(demands_old_bynight_FCFS, axis=1)
+    #demands_new_bynight_FCFS = np.sum(demands_new_bynight_FCFS, axis=1)
+
+    # If old demand is zero, then we set adjustment ratio to be 1
+    with np.errstate(divide='ignore', invalid='ignore'):
         demands_adj_ratio = (demands_new_bynight_FCFS - demands_old_bynight_FCFS) / demands_old_bynight_FCFS
     demands_adj_ratio[np.isnan(demands_adj_ratio)] = 1
 
     demands_adj_ratio = np.swapaxes(demands_adj_ratio, 0, 1)
-    demands_adj_ratio = np.maximum(-1, np.minimum(demands_adj_ratio, 1))
+    # For practical consideration, rate adjustment ratios are between [-0.5, 1]
+    demands_adj_ratio = np.maximum(-0.5, np.minimum(demands_adj_ratio, 1))
     rates_update_FCFS = wk1_rates_FCFS * (1 + demands_adj_ratio)
+    rates_update_FCFS = np.minimum(rates_update_FCFS, 2*rates0)
 
 
+    ######################## Week 2 and Beyond ########################
 
-    ######################## Week 2 ########################
-
-    ls_rad_sun = [(0, 5, 2), (0, 6, 1), (0, 6, 2), (1, 5, 2), (1, 6, 1), (1, 6, 2)]
     for week in range(2, weeks+1):
         # First of all, protection levels are updated
-        thetas_wk1 = thetas_wk2
-        thetas_wk2 = thetas_new
-
-        demands_old = demands
+        thetas_now = [thetas_next[i].copy() for i in range(7)]
+        thetas_next = [thetas_new[i].copy() for i in range(7)]
+        
+        demands_old_FCFS = demands_new_FCFS.copy()
         # In current week, store rates for current week and next week
-        wk1_rates_AP = wk2_rates_AP
-        wk2_rates_AP = rates_update_AP
+        wk1_rates_AP = wk2_rates_AP.copy()
+        wk2_rates_AP = rates_update_AP.copy()
         rates_for_two_weeks_AP = np.concatenate((wk1_rates_AP, wk2_rates_AP)).reshape(2, n_class, 7)
         # Derive rates for rate class of r, arrival day of d and length of stay of d
-        rates_rad_AP = [[moving_sum(rates_for_two_weeks_AP[:, i].reshape(2*7), j)[:7]
+        rates_rad_AP = [[moving_sum(rates_for_two_weeks_AP[:, i].reshape(2*7), j)[:7] 
                              for j in range(1, los+1)] for i in range(n_class)]
         # Convert to the right shape for later calculation
         rates_rad_AP = np.array(rates_rad_AP)
         rates_rad_AP = np.swapaxes(rates_rad_AP, 1, 2)
 
         # In current week, store rates for current week and next week
-        wk1_rates_FCFS = wk2_rates_FCFS
-        wk2_rates_FCFS = rates_update_FCFS
+        wk1_rates_FCFS = wk2_rates_FCFS.copy()
+        wk2_rates_FCFS = rates_update_FCFS.copy()
         rates_for_two_weeks_FCFS = np.concatenate((wk1_rates_FCFS, wk2_rates_FCFS)).reshape(2, n_class, 7)
         # Derive rates for rate class of r, arrival day of d and length of stay of d
-        rates_rad_FCFS = [[moving_sum(rates_for_two_weeks_FCFS[:, i].reshape(2*7), j)[:7]
+        rates_rad_FCFS = [[moving_sum(rates_for_two_weeks_FCFS[:, i].reshape(2*7), j)[:7] 
                            for j in range(1, los+1)] for i in range(n_class)]
         # Convert to the right shape for later calculation
         rates_rad_FCFS = np.array(rates_rad_FCFS)
         rates_rad_FCFS = np.swapaxes(rates_rad_FCFS, 1, 2)
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
-
         # Consider second week stay nights, our week starts on Sunday, not Monday
-        # Initialize rates for adaptive pricing algorithm and first-come, first-serve approach
-        rates_AP = rates_rad_AP
-        rates_FCFS = rates_rad_FCFS
-        # Order of rates as dynamic pricing rates, adaptive pricing rates, and FCFS rates
-        ratesAll = [rates_DP, rates_AP, rates_FCFS]
-        # Generate nonhomogenous Poisson process true bookings (i.e., customer demand) on a weekly basis
-        # the mean of the Poisson process will be equal to the linear demand curve function of the room rates
+        # Initialize rates for adaptive pricing algorithm and first-come, 
+        # first-serve approach, order of rates as dynamic pricing rates, 
+        # adaptive pricing rates, and FCFS rates
+        ratesAll = [rates_DP, rates_rad_AP, rates_rad_FCFS]
+        # Generate nonhomogenous Poisson process true bookings (i.e., customer 
+        # demand) on a weekly basis
+        # the mean of the Poisson process will be equal to the linear demand 
+        # curve function of the room rates
         mus = [np.maximum(intercepts + slopes * rates, 0) for rates in ratesAll]
         demands_next = [[poisson.rvs(mu, size=1) for mu in np.nditer(mus_each)] for mus_each in mus]
         demands_next = [np.array(x).reshape(n_class, 7, los) for x in demands_next]
 
-        demands_new_AP = demands_next[1]
-        demands_new_FCFS = demands_next[2] # some demands might be zero
-
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        # demands in the second week
+        demands_new_FCFS = demands_next[2].copy() # some demands might be zero
 
         # Week 2 sell information
         nightlyRev_next = []
         wk2SellInfo = []
         wk2RoomSold_AP = []
+
+        ls_capacity_wk2 = np.repeat(capacity, 7*3*2).reshape(7*2, 3)
+        #     wk_capacity = np.repeat(capacity, 7*3).reshape(7, 3)
+        #     ls_capacity_wk2 = np.concatenate((ls_capacity[7:], wk_capacity))
+        sold_AP_wk2_dict = {}
+
+        thetas_tmp2 = [thetas_now[i].copy() for i in range(7)]
         for i in range(7):
             buckets_night = buckets[i]
             # Three different algorithms, three different scenarios to consider
-            capacity_left = [capacity] * 3
+            capacity_left = ls_capacity_wk2[i].copy()
             # Info about the booking class type, rooms sold and revenues (single night revenue)
             soldAll = []
             roomSold_AP = []
@@ -530,31 +586,52 @@ for _ in range(num_simulations):
             for rads in reversed(buckets_night):
                 sold_bucket = []
                 sold_bucket_AP = 0
-                for rad in rads:
-                    # For stay night revenue calculation, we only use one-night stay revenue, not
-                    # multiple stay night total revenue
-                    rad_single = (rad[0], i, 0)
+                for rad in reversed(rads):
+                    if rad[1] != i:
+                        continue
                     # Rooms sold equals smaller of demand and capacity left
                     # Dynamic pricing
-
                     sold_DP = min(demands_next[0][rad], capacity_left[0])
-                    # Adaptive pricing, the selling amount is constrained by the protection levels for higher classes
+
+                    # Adaptive pricing, the selling amount is constrained by 
+                    # the protection levels for higher classes
                     try:
-                        BL_AP = max(capacity_left[1]-list(reversed(thetas_wk1[i]))[pl_idx], 0)
+                        BL_AP = max(capacity_left[1]-list(reversed(thetas_tmp2[i]))[pl_idx], 0)
                     except IndexError:
                         BL_AP = capacity_left[1]
-
                     sold_AP = min(demands_next[1][rad], BL_AP)
+
+                    # Incorporate impact of current acceptance decisions on the 
+                    # following stay nights for stays of greater than one night
+                    span_nights_wk2 = [item[1] for item in bkClass_bkt if item[0] == rad]
+        #             print(sold_AP, i, capacity_left[1], thetas_tmp1)
+                    for el in span_nights_wk2:
+                        idx1 = el[0]
+                        idx2 = el[1]
+                        try:
+                            thetas_tmp2[idx1][idx2:] = np.maximum(thetas_tmp2[idx1][idx2:] - sold_AP, 0)
+                        except IndexError:
+                            continue
+                    thetas_tmp2 = [sorted(thetas_tmp2[i]) for i in range(7)]
+                    thetas_tmp2 = [np.array(thetas_tmp2[i]) for i in range(7)]
                     sold_bucket_AP += sold_AP
+
                     # First-come, first-serve
                     sold_FCFS = min(demands_next[2][rad], capacity_left[2])
 
                     sold = [sold_DP, sold_AP, sold_FCFS]
 
-                    rev = [ratesAll[i][rad_single] * sold[i] for i in range(len(demands_next))]
+                    # If length-of-stay is more than one night, accepting that class
+                    # will reduce the remaining capacity on all stay nights it spans.
+                    # rad[2] contains LOS.
+                    ls_capacity_wk2[i+np.arange(rad[2]+1)] = ls_capacity_wk2[i+np.arange(rad[2]+1)] - np.array(sold)
+
+                    rev = [ratesAll[i][rad] * sold[i] for i in range(len(demands_next))]
                     sold_bucket.append((rad, sold, rev))
+                    sold_AP_wk2_dict[rad] = sold[1]
                     # Update remaining capacity for the next virtual class
-                    capacity_left = [capacity_left[i]-sold[i] for i in range(len(sold))]
+                    capacity_left = np.array(capacity_left) - np.array(sold)
+
                 soldAll.append(sold_bucket)
                 roomSold_AP.append(sold_bucket_AP)
                 pl_idx += 1
@@ -562,8 +639,8 @@ for _ in range(num_simulations):
             # Remove empty lists
             soldAll = list(filter(None, soldAll))
             soldAll = list(itertools.chain.from_iterable(soldAll))
+
             wk2SellInfo.append(soldAll)
-            wk2RoomSold_AP.append(roomSold_AP)
 
             # Extract revenue information and store it in revenue array
             revenue = [soldAll[i][2] for i in range(len(soldAll))]
@@ -574,43 +651,41 @@ for _ in range(num_simulations):
         revSum = [np.sum(x, axis=0) for x in nightlyRev_next]
         wk2Rev = np.sum(revSum, axis=0)
 
+
         weeklyRev.append(wk2Rev)
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        ################################################################
 
         # Use adaptive pricing algoritm to derive new rates for week 3
-        wk2RoomSold_AP = [list(reversed(wk2RoomSold_AP[i])) for i in range(len(wk2RoomSold_AP))]
-        wk2RoomSold_AP = [np.array(x) for x in wk2RoomSold_AP]
+        sold_AP_wk2_ls = [[[sold_AP_wk2_dict[rad] for rad in bucket] 
+            for bucket in buckets[i]] for i in range(7)]
+        sold_AP_wk2_ls = [[np.array(x) for x in sold_AP_wk2_ls[i]] for i in range(7)]
+        sold_AP_wk2_sum = [[np.sum(x) for x in sold_AP_wk2_ls[i]] for i in range(7)]
+        wk2RoomSold_AP = [np.array(x) for x in sold_AP_wk2_sum]
 
         # Update protection levels according to the sales info
         roomSold_cumsum = [np.cumsum(x) for x in wk2RoomSold_AP]
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        ###################################################################
 
         # Compute if the demand for a class exceeds its corresponding protection levels
-        Y = [roomSold_cumsum[i][:-1] >= thetas_wk1[i] for i in range(7)]
+        Y = [roomSold_cumsum[i][:-1] >= thetas_now[i] for i in range(7)]
         # Implement Equation(2) in vanRyzin-McGill 2000
         Z = [np.cumproduct(Y[i]) for i in range(7)]
         # Calculate H(theta, x)
         H = [ratios[i][1:] - Z[i] for i in range(7)]
-        thetas_new = [thetas_wk1[i] - (param1/(param2+week)) * H[i] for i in range(7)]
-        # Truncate at zero and sort it-- nonnegativity of protection levels
-        thetas_new = [np.minimum(np.maximum(thetas_new[i], 0), capacity) for i in range(7)]
+        thetas_new = [thetas_now[i] - (param1/(param2+week)) * H[i] for i in range(7)]
+        # Truncate at zero and sort it-- nonnegativity of protection levels 
+        thetas_new = [np.maximum(thetas_new[i], 0) for i in range(7)]
         thetas_new = [sorted(thetas_new[i]) for i in range(7)]
         # Round to integers
         thetas_new = [np.round(thetas_new[i], 0) for i in range(7)]
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        #####################################################################
 
-        # Create a dummy booking class 1 so that we can find the partitioned protection levels
-        # from nested ones in an easy way
-        thetas_old_full = [np.concatenate(([0], thetas_wk1[i], [capacity])) for i in range(7)]
+        # Create a dummy booking class 1 so that we can find the partitioned 
+        # protection levels from nested ones in an easy way
+        thetas_old_full = [np.concatenate(([0], thetas_now[i], [capacity])) for i in range(7)]
         thetas_new_full = [np.concatenate(([0], thetas_new[i], [capacity])) for i in range(7)]
 
         # Calculate partitioned protection level changes for each bucket in each night
@@ -619,13 +694,11 @@ for _ in range(num_simulations):
 
         # Percent change for partitioned protection levels
         # When divide by zero, we assume the change is 1, or 100%.
-        thetas_adj = [np.divide(thetas_new_full_prt[i], thetas_old_full_prt[i],
+        thetas_adj = [np.divide(thetas_new_full_prt[i], thetas_old_full_prt[i], 
                                 out=(np.zeros_like(thetas_new_full_prt[i])+2),
                                where=thetas_old_full_prt[i]!=0) - 1 for i in range(7)]
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        #######################################################################
 
         bkClass_bkt_uniq = {}
         rates_adj = {}
@@ -637,86 +710,82 @@ for _ in range(num_simulations):
                 bkClass_bkt_uniq[x] = [(y)]
                 rates_adj[x] = [(thetas_adj[y[0]][y[1]])]
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        #######################################################################
 
         # Derive average changes for a booking class (i.e., r, a, d combination)
         rates_adj_avg = {}
         for k, v in rates_adj.items():
             avg_adj = np.round(np.mean(np.array(v)), 4)
-            avg_adj = max(min(avg_adj, 1), -1)
+            avg_adj = max(min(avg_adj, 1), -0.5)
             rates_adj_avg[k] = [(avg_adj)]
             single_rate = np.round((rates_rad_AP[k] * (1+rates_adj_avg[k][0])) / (k[2] + 1), 0)
             rates_adj_avg[k].append((single_rate))
 
-        ################################################################################
-        ################################################################################
-        ################################################################################
+        #######################################################################
 
-        # Derive single stay night revenue for each rate class for each stay night of the week
-        rate0_new = []
-        rate1_new = []
+        # Derive single stay night revenue for each rate class for each stay 
+        # night of the week
+        rate_new = []
         for bkt in buckets:
             # Flatten the bucket elements for each day of the week
             bkt_ls = list(itertools.chain.from_iterable(bkt))
-            # For each booking class in the falttened list, extract the rates generated by the algorithm
-            myRate0_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls if my_key[0] == 0}
-            myRate1_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls if my_key[0] == 1}
+            # For each booking class in the falttened list, extract the rates 
+            # generated by the algorithm
+            myRate_dict = {my_key: rates_adj_avg[my_key] for my_key in bkt_ls}
+
             # Store it as an array
-            myRate0 = np.array(list(myRate0_dict.values()))
-            myRate1 = np.array(list(myRate1_dict.values()))
+            myRate = np.array(list(myRate_dict.values()))
+
             # Calculate stay night rates for each rate class for each stay night
-            myRate0_avg = np.round(np.mean(myRate0, axis=0)[1], 0)
-            myRate1_avg = np.round(np.mean(myRate1, axis=0)[1], 0)
+            myRate_avg = np.round(np.mean(myRate, axis=0)[1], 0)
+
             # Create list for new rates to use for next week
-            rate0_new.append(myRate0_avg)
-            rate1_new.append(myRate1_avg)
+            rate_new.append(myRate_avg)
+
+        rate_new = np.array(rate_new)
+        rate_diff = (rates0[0] - rates0[1]) / 2
+        # Set rate 1 and rate 2 by adding and subtracting a fixed
+        # amount
+        rate0_new = np.minimum(rate_new + rate_diff, 2*rates0[0])
+        rate1_new = np.minimum(rate_new - rate_diff, 2*rates0[1])
 
         # New single night rates for next week
         rates_update_AP = np.concatenate((rate0_new, rate1_new)).reshape(n_class, 7)
 
-    #     rates1_update_AP = rates_update_AP[0].copy()
-    #     rates2_update_AP = rates_update_AP[1].copy()
+        #######################################################################
 
-    #     rates_update_AP[0] = np.maximum(rates1_update_AP, rates2_update_AP)
-    #     rates_update_AP[1] = np.minimum(rates1_update_AP, rates2_update_AP)
-
-    #     rates_update_AP = np.round(np.minimum(rates_update_AP, 2*rates_init), 0)
-        ################################################################################
-        ################################################################################
-        ################################################################################
-
-        # Compute total demand by rate class for each stay night, which is then
+        # Compute total demand by rate class for each stay night, which is then 
         # used to calculate demand change ratio for FCFS strategy
-        demands_old_bynight_FCFS = [sum_of_elements(demands_old_FCFS[tuple(zip(*stay_index[i]))])
+        demands_old_bynight_FCFS = [sum_of_elements(demands_old_FCFS[tuple(zip(*stay_index[i]))]) 
                                     for i in range(7)]
-        demands_new_bynight_FCFS = [sum_of_elements(demands_new_FCFS[tuple(zip(*stay_index[i]))])
+        demands_new_bynight_FCFS = [sum_of_elements(demands_new_FCFS[tuple(zip(*stay_index[i]))]) 
                                     for i in range(7)]
 
         demands_old_bynight_FCFS = np.array(demands_old_bynight_FCFS)
         demands_new_bynight_FCFS = np.array(demands_new_bynight_FCFS)
-        with np.errstate(divide='ignore'):
+
+        #demands_old_bynight_FCFS = np.sum(demands_old_bynight_FCFS, axis=1)
+        #demands_new_bynight_FCFS = np.sum(demands_new_bynight_FCFS, axis=1)
+        with np.errstate(divide='ignore', invalid='ignore'):
             demands_adj_ratio = (demands_new_bynight_FCFS - demands_old_bynight_FCFS) / demands_old_bynight_FCFS
         demands_adj_ratio[np.isnan(demands_adj_ratio)] = 1
 
         demands_adj_ratio = np.swapaxes(demands_adj_ratio, 0, 1)
-        demands_adj_ratio = np.maximum(-1, np.minimum(demands_adj_ratio, 1))
+        demands_adj_ratio = np.maximum(-0.5, np.minimum(demands_adj_ratio, 1))
         rates_update_FCFS = wk1_rates_FCFS * (1 + demands_adj_ratio)
 
-    #     rates1_update_FCFS = rates_update_FCFS[0].copy()
-    #     rates2_update_FCFS = rates_update_FCFS[1].copy()
-
-    #     rates_update_FCFS[0] = np.maximum(rates1_update_FCFS, rates2_update_FCFS)
-    #     rates_update_FCFS[1] = np.minimum(rates1_update_FCFS, rates2_update_FCFS)
-
-        rates_update_FCFS = np.round(np.minimum(rates_update_FCFS, 2*rates_init), 0)
-
+        rates_update_FCFS = np.round(np.minimum(rates_update_FCFS, 2*rates0), 0)
+        
     sim_weeklyRev.append(weeklyRev)
 
 # Reshape the simulated weekly revenue and find the average
 sim_weeklyRev = np.array(sim_weeklyRev).reshape(num_simulations, weeks, 3)
 avgweeklyRev = np.mean(sim_weeklyRev, axis=0)
+
+revBenchmark = avgweeklyRev[:, 0].reshape(weeks, -1)
+avgweeklyRevGap = avgweeklyRev / revBenchmark
+
+avgweeklyOutput = np.concatenate((avgweeklyRev, avgweeklyRevGap), axis=1)
 
 plt.subplot()
 plt.plot(avgweeklyRev[:, 0], label="DP")
@@ -727,8 +796,9 @@ plt.show()
 
 # Add week info to the output, which comes handy for visualization in RStudio.
 weekdata = np.arange(1, weeks+1)
-revOutput = np.column_stack((weekdata, avgweeklyRev))
+output = np.column_stack((weekdata, avgweeklyOutput))
 
 # Export the results to a csv file
-np.savetxt(csvfilename, revOutput, fmt='%i, %i, %i, %i', delimiter=',', 
-        header="Week, DP, AP, FCFS", comments="")
+np.savetxt(csvfilename, output, fmt='%i, %i, %i, %i, %.2f, %.2f, %.2f', 
+        delimiter=',', header="Week, DP, AP, FCFS, DPvsDP, APvsDP, FCFSvsDP", 
+        comments="")
